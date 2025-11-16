@@ -1,0 +1,6 @@
+go.work
+go.work.sum
+.vendor
+vendor
+.env
+env
