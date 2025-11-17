@@ -5,14 +5,15 @@ import (
 	"os/signal"
 	"syscall"
 
+	restservices "github.com/rsmrtk/mybox/internal/rest/services"
 	"github.com/rsmrtk/mybox/pkg"
 )
 
 type App struct {
 	pkg *pkg.Facade
 
-	servicesGRPC *grpcservices.Service
-	servicesREST *restservices.Service
+	//servicesGRPC *grpcservices.Service
+	servicesREST *restservices.Services
 }
 
 func Run() {
@@ -27,7 +28,7 @@ func Run() {
 	}
 
 	app.pkg = pkg
-	app.servicesGRPC = grpcservices.NewService(grpcservices.Options{Pkg: pkg})
+	//app.servicesGRPC = grpcservices.NewService(grpcservices.Options{Pkg: pkg})
 	app.servicesREST = restservices.NewService(restservices.Options{Pkg: pkg})
 
 	pkg.Log.Infof("Starting REST server...")

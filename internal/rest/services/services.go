@@ -12,3 +12,9 @@ type Options struct {
 type Services struct {
 	Income *income.Service
 }
+
+func NewService(opts Options) *Services {
+	return &Services{
+		Income: income.NewService(opts.Pkg),
+	}
+}
