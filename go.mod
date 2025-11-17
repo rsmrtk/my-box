@@ -6,7 +6,6 @@ require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/rsmrtk/db-fd-model v1.0.2
-	github.com/rsmrtk/fd-cfg v0.0.0-20251117083134-0d352cf79a23
 	github.com/rsmrtk/fd-er v0.0.0-20251117081419-7016a26ac78f
 	github.com/rsmrtk/fd-storage v0.0.0-20251117082854-88f23cdf7d61
 	github.com/rsmrtk/smartlg v0.0.0-20250805062650-c308cfd6bb3f
@@ -66,6 +65,7 @@ require (
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.54.0 // indirect
 	github.com/rs/zerolog v1.34.0 // indirect
+	github.com/rsmrtk/fd-cfg v0.0.0-20251117115126-26f50440d6cb // indirect
 	github.com/sagikazarmark/locafero v0.11.0 // indirect
 	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
