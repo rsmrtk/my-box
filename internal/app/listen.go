@@ -45,8 +45,8 @@ func (app *App) Listen() {
 			app.pkg.Log.Fatal("REST server error", lg.H{"error": err})
 		}
 	}()
-	//
-	//<-ctx.Done() // Server is stopped.
+
+	<-ctx.Done() // Server is stopped.
 	//app.pkg.Log.Infof("gRPC server stopped")
 	//if err := serverGRPC.Shutdown(context.Background()); err != nil {
 	//	app.pkg.Log.Fatal("gRPC server shutdown error", map[string]any{"error": err})
