@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	er "github.com/rsmrtk/fd-er"
+	di "github.com/rsmrtk/mybox/internal/rest/domain/income"
 	"github.com/rsmrtk/mybox/internal/rest/services/income"
 )
 
@@ -18,7 +19,7 @@ func NewEstimateController(service *income.Service) *IncomeController {
 }
 
 func (c *IncomeController) Get(ctx *gin.Context) {
-	var req domainestimate.GetRequest
+	var req di.GetRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		err = er.NewHTTPError(http.StatusBadRequest).SetInternal(fmt.Errorf("failed to bind request: %w", err))
 		_ = ctx.Error(err)
@@ -36,7 +37,7 @@ func (c *IncomeController) Get(ctx *gin.Context) {
 }
 
 func (c *IncomeController) GetToll(ctx *gin.Context) {
-	var req domainestimate.GetTollRequest
+	var req di.GetTollRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		err = er.NewHTTPError(http.StatusBadRequest).SetInternal(fmt.Errorf("failed to bind request: %w", err))
 		ctx.Set("failed_request", req)
