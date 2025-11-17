@@ -22,7 +22,7 @@ func (f *Facade) Handle(ctx context.Context, req *income.CreateRequest) (error, 
 		f:   f,
 	}
 
-	if err := serv.find(); err != nil {
+	if err := serv.create(); err != nil {
 		return nil, err
 	}
 	return serv.reply(), nil
