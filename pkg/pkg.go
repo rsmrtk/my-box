@@ -13,7 +13,6 @@ import (
 	"github.com/rsmrtk/mybox/pkg/jwt"
 	"github.com/rsmrtk/mybox/pkg/pkg_model"
 	lg "github.com/rsmrtk/smartlg/logger"
-	"github.com/spiffe/go-spiffe/v2/logger"
 )
 
 type Facade struct {
@@ -69,17 +68,17 @@ func New(ctx context.Context) (*Facade, error) {
 	return facade, nil
 }
 
-func initLogger(env env.ENV) (*logger.Logger, error) {
-	level := logger.DebugLevel
+func initLogger(env env.ENV) (*lg.Logger, error) {
+	level := lg.DebugLevel
 	if env.IsProd {
-		level = logger.InfoLevel
+		level = lg.InfoLevel
 	}
 	w := io.MultiWriter(os.Stdout)
-	l := logger.New(w).With().Timestamp().Logger().Level(level)
+	l := lg.New(w).With().Timestamp().Logger().Level(level)
 	return l, nil
 }
 
-func initModels(ctx context.Context, cnfInstance *Config, logInstance *logger.Logger) (*pkg_model.Models, error) {
+func initModels(ctx context.Context, cnfInstance *Config, logInstance *lg.Logger) (*pkg_model.Models, error) {
 	modelsInstance, err := pkg_model.New(ctx, cnfInstance.SpannerURL, logInstance)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize models: %w", err)
