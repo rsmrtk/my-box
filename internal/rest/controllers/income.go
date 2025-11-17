@@ -36,8 +36,8 @@ func (c *IncomeController) Get(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-func (c *IncomeController) GetToll(ctx *gin.Context) {
-	var req di.GetTollRequest
+func (c *IncomeController) Create(ctx *gin.Context) {
+	var req di.CreateRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		err = er.NewHTTPError(http.StatusBadRequest).SetInternal(fmt.Errorf("failed to bind request: %w", err))
 		ctx.Set("failed_request", req)
@@ -45,7 +45,7 @@ func (c *IncomeController) GetToll(ctx *gin.Context) {
 		return
 	}
 
-	res, err := c.service.GetToll.Handle(ctx, &req)
+	res, err := c.service.Create.Handle(ctx, &req)
 	if err != nil {
 		err = er.NewHTTPError(http.StatusInternalServerError).SetInternal(fmt.Errorf("failed to handle request: %w", err))
 		ctx.Set("failed_request", req)
