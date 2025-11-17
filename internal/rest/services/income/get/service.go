@@ -7,6 +7,7 @@ import (
 
 	"github.com/rsmrtk/db-fd-model/m_income"
 	di "github.com/rsmrtk/mybox/internal/rest/domain/income"
+	amount "github.com/rsmrtk/mybox/internal/rest/domain/models"
 )
 
 type service struct {
@@ -17,8 +18,9 @@ type service struct {
 	incomeID     string
 	incomeName   string
 	incomeAmount big.Rat
-	incomeType   []string
+	incomeType   string
 	incomeDate   time.Time
+	createdAt    time.Time
 }
 
 func (s *service) find() error {
@@ -48,7 +50,28 @@ func (s *service) find() error {
 	s.incomeID = rows[0].IncomeID
 	s.incomeName = rows[0].IncomeName.StringVal
 	s.incomeAmount = rows[0].IncomeAmount.Numeric
-	s.incomeType = m_income.EnumType(rows[0].IncomeType)
+	s.incomeType = string(m_income.EnumType(rows[0].IncomeType.StringVal))
+	s.incomeDate = rows[0].IncomeDate.Time
+	s.createdAt = rows[0].CreatedAt.Time
 
 	return nil
+}
+
+func (s *service) reply() *di.GetResponse {
+	amountValue, _ := s.incomeAmount.Float64()
+	amountObj := &amount.Amount{
+		Amount:          amountValue,
+		AmountFormatted: s.incomeAmount.String(),
+		CurrencyCode:    "USD",
+		CurrencySymbol:  "$",
+	}
+
+	return &di.GetResponse{
+		IncomeID:     s.incomeID,
+		IncomeName:   s.incomeName,
+		IncomeAmount: []*amount.Amount{amountObj},
+		IncomeType:   s.incomeType,
+		IncomeDate:   s.incomeDate,
+		CreatedAt:    s.createdAt,
+	}
 }
