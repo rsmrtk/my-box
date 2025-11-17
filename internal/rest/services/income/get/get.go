@@ -24,5 +24,5 @@ func (f *Facade) Handler(ctx context.Context, req *income.GetRequest) error {
 	if err := serv.find(); err != nil {
 		return nil, err
 	}
-
+	return serv.reply()
 }
