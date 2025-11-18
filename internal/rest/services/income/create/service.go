@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rsmrtk/db-fd-model/m_income"
 	di "github.com/rsmrtk/mybox/internal/rest/domain/income"
-	amount "github.com/rsmrtk/mybox/internal/rest/domain/models"
+	"github.com/rsmrtk/mybox/internal/rest/domain/models"
 )
 
 //create
@@ -72,17 +72,16 @@ func (s *service) reply() *di.CreateResponse {
 	amountValue, _ := s.incomeAmount.Float64()
 
 	// Create amount structure
-	amountObj := &amount.Amount{
-		Amount:          amountValue,
-		AmountFormatted: s.incomeAmount.String(),
-		CurrencyCode:    "USD", // Default, adjust as needed
-		CurrencySymbol:  "$",   // Default, adjust as needed
+	amountObj := &models.Amount{
+		Amount:         amountValue,
+		CurrencyCode:   "USD", // Default, adjust as needed
+		CurrencySymbol: "$",   // Default, adjust as needed
 	}
 
 	return &di.CreateResponse{
 		IncomeID:     s.incomeID,
 		IncomeName:   s.incomeName,
-		IncomeAmount: []*amount.Amount{amountObj},
+		IncomeAmount: []*models.Amount{amountObj},
 		IncomeType:   s.incomeType,
 		IncomeDate:   s.incomeDate,
 		CreatedAt:    s.createdAt,

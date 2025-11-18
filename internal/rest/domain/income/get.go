@@ -3,7 +3,7 @@ package income
 import (
 	"time"
 
-	amount "github.com/rsmrtk/mybox/internal/rest/domain/models"
+	"github.com/rsmrtk/mybox/internal/rest/domain/models"
 )
 
 type GetRequest struct {
@@ -13,7 +13,7 @@ type GetRequest struct {
 type GetResponse struct {
 	IncomeID     string           `json:"income_id"`
 	IncomeName   string           `json:"income_name"`
-	IncomeAmount []*amount.Amount `json:"income_amount"`
+	IncomeAmount []*models.Amount `json:"income_amount"`
 	IncomeType   string           `json:"income_type"`
 	IncomeDate   time.Time        `json:"income_date"`
 	CreatedAt    time.Time        `json:"created_at"`
