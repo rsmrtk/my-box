@@ -11,7 +11,6 @@ require (
 	github.com/rsmrtk/fd-er v0.0.0-20251117081419-7016a26ac78f
 	github.com/rsmrtk/fd-storage v0.0.0-20251117082854-88f23cdf7d61
 	github.com/rsmrtk/smartlg v0.0.0-20250805062650-c308cfd6bb3f
-	github.com/shopspring/decimal v1.4.0
 )
 
 require (
@@ -107,5 +106,3 @@ require (
 	google.golang.org/grpc v1.76.0 // indirect
 	google.golang.org/protobuf v1.36.9 // indirect
 )
-
-replace github.com/rsmrtk/db-fd-model => ../db-fd-model

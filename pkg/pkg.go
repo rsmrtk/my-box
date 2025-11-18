@@ -96,6 +96,13 @@ func initJWT(cnfInstance *Config) (jwt.JWT, error) {
 }
 
 func initBucket() (*storage.Client, error) {
+	// Skip Google Cloud Storage for local development
+	env := env.New(os.Getenv("ENV"))
+	if !env.IsProd {
+		// Return nil for local development - the storage won't be used
+		return nil, nil
+	}
+
 	bucketInstance, err := storage.New(&storage.Params{
 		BucketNames: storage.BucketNames{
 			Public:  "jurny_rider",
@@ -111,27 +118,50 @@ func initBucket() (*storage.Client, error) {
 func initCfg(ctx context.Context) (*Config, error) {
 	env := env.New(os.Getenv("ENV"))
 
-	valueMap, err := config.Load(ctx, &config.Options{
-		ENV:           &env,
-		SecretConfigs: []config.SecretConfigValue{},
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to load config: %w", err)
+	// For local development, skip Google Cloud Secret Manager
+	var tlsCertFile, tlsKeyFile string
+
+	// Only try to load from Secret Manager in production
+	if env.IsProd {
+		valueMap, err := config.Load(ctx, &config.Options{
+			ENV:           &env,
+			SecretConfigs: []config.SecretConfigValue{},
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to load config: %w", err)
+		}
+		tlsCertFile = valueMap.Get(config.TLSCertFile.Name)
+		tlsKeyFile = valueMap.Get(config.TLSKeyFile.Name)
+	} else {
+		// For local development, use empty values or load from env vars
+		tlsCertFile = os.Getenv("TLS_CERT_FILE")
+		tlsKeyFile = os.Getenv("TLS_KEY_FILE")
 	}
 
 	// Get PostgreSQL connection string from environment
 	postgresURL := os.Getenv("POSTGRES_DSN")
 	if postgresURL == "" {
-		postgresURL = "postgres://postgres:password@localhost:5432/mybox?sslmode=disable"
+		postgresURL = "postgres://rsmrtk:rsmrtkrsmrtk@localhost:5432/fd?sslmode=disable"
+	}
+
+	// Get JWT configuration with defaults for local development
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "local-dev-secret-change-in-production"
+	}
+
+	jwtDuration := os.Getenv("JWT_DURATION")
+	if jwtDuration == "" {
+		jwtDuration = "24h"
 	}
 
 	c := &Config{
 		ENV:         env,
 		PostgresURL: postgresURL,
-		JWTSecret:   os.Getenv("JWT_SECRET"),
-		JWTDuration: os.Getenv("JWT_DURATION"),
-		TLSCertFile: valueMap.Get(config.TLSCertFile.Name),
-		TLSKeyFile:  valueMap.Get(config.TLSKeyFile.Name),
+		JWTSecret:   jwtSecret,
+		JWTDuration: jwtDuration,
+		TLSCertFile: tlsCertFile,
+		TLSKeyFile:  tlsKeyFile,
 	}
 
 	return c, nil

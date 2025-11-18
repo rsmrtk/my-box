@@ -159,6 +159,8 @@ github.com/rogpeppe/go-internal v1.13.1/go.mod h1:uMEvuHeurkdAXX61udpOXGD/AzZDWN
 github.com/rs/xid v1.6.0/go.mod h1:7XoLgs4eV+QndskICGsho+ADou8ySMSjJKDIan90Nz0=
 github.com/rs/zerolog v1.34.0 h1:k43nTLIwcTVQAncfCw4KZ2VY6ukYoZaBPNOE8txlOeY=
 github.com/rs/zerolog v1.34.0/go.mod h1:bJsvje4Z08ROH4Nhs5iH600c3IkWhwp44iRc54W6wYQ=
+github.com/rsmrtk/db-fd-model v1.0.5 h1:91woZmkYgaKB8v0ropQsob8GM07qdD3xHqLYVgQ60mg=
+github.com/rsmrtk/db-fd-model v1.0.5/go.mod h1:zamvt5z87LOvLgRXyRPrwn+UI8CwG2k2IY1nIitv37c=
 github.com/rsmrtk/fd-cfg v0.0.0-20251117115126-26f50440d6cb h1:ney5Po0TkQ6aLJM/Pa+QH2QL+6Xd8MsRJ9m1oCUqD18=
 github.com/rsmrtk/fd-cfg v0.0.0-20251117115126-26f50440d6cb/go.mod h1:CEn/ndZHbwXetnnCIuOx93f5gw7PA5MxUW7HtMiLTeI=
 github.com/rsmrtk/fd-er v0.0.0-20251117081419-7016a26ac78f h1:WJerKHFsTUwbzZyB58YbRL8+b+qfhYIrkOuDef7cldU=
@@ -169,8 +171,6 @@ github.com/rsmrtk/smartlg v0.0.0-20250805062650-c308cfd6bb3f h1:cqrChWk400CyVafb
 github.com/rsmrtk/smartlg v0.0.0-20250805062650-c308cfd6bb3f/go.mod h1:X5iHVYDw0anXcnq8xRffLo4dEEd1k2HlevZovvdH7eM=
 github.com/sagikazarmark/locafero v0.11.0 h1:1iurJgmM9G3PA/I+wWYIOw/5SyBtxapeHDcg+AAIFXc=
 github.com/sagikazarmark/locafero v0.11.0/go.mod h1:nVIGvgyzw595SUSUE6tvCp3YYTeHs15MvlmU87WwIik=
-github.com/shopspring/decimal v1.4.0 h1:bxl37RwXBklmTi0C79JfXCEBD1cqqHt0bbgBAGFp81k=
-github.com/shopspring/decimal v1.4.0/go.mod h1:gawqmDU56v4yIKSwfBSFip1HdCCXN8/+DMd9qYNcwME=
 github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 h1:+jumHNA0Wrelhe64i8F6HNlS8pkoyMv5sreGx2Ry5Rw=
 github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8/go.mod h1:3n1Cwaq1E1/1lhQhtRK2ts/ZwZEhjcQeJQ1RuC6Q/8U=
 github.com/spf13/afero v1.15.0 h1:b/YBCLWAJdFWJTN9cLhiXXcD7mzKn9Dm86dNnfyQw1I=
