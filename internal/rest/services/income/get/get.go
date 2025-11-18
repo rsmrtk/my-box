@@ -15,7 +15,7 @@ func New(pkg *pkg.Facade) *Facade {
 	return &Facade{pkg: pkg}
 }
 
-func (f *Facade) Handle(ctx context.Context, req *income.GetRequest) (error, error) {
+func (f *Facade) Handle(ctx context.Context, req *income.GetRequest) (*income.GetResponse, error) {
 	serv := &service{
 		ctx: ctx,
 		req: req,

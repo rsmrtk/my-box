@@ -2,6 +2,6 @@ go.work
 go.work.sum
 .vendor
 vendor
-.env
+configs/development.env
 env
 .idea

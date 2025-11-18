@@ -32,5 +32,5 @@ func Run() {
 	app.servicesREST = restservices.NewService(restservices.Options{Pkg: pkg})
 
 	pkg.Log.Infof("Starting REST server...")
-
+	app.Listen()
 }

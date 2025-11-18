@@ -71,8 +71,15 @@ func (s *Server) Serve() error {
 		ErrorLog: log.New(errorFilter, "", log.LstdFlags),
 	}
 
-	if err := httpSrv.ListenAndServeTLS(s.cert, s.key); err != nil {
-		return fmt.Errorf("internal error: %w", err)
+	// Use HTTP for local development when certificates are not provided
+	if s.cert == "" || s.key == "" {
+		if err := httpSrv.ListenAndServe(); err != nil {
+			return fmt.Errorf("internal error: %w", err)
+		}
+	} else {
+		if err := httpSrv.ListenAndServeTLS(s.cert, s.key); err != nil {
+			return fmt.Errorf("internal error: %w", err)
+		}
 	}
 	return nil
 }

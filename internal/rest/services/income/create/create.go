@@ -15,14 +15,14 @@ func New(pkg *pkg.Facade) *Facade {
 	return &Facade{pkg: pkg}
 }
 
-func (f *Facade) Handle(ctx context.Context, req *income.CreateRequest) (error, error) {
+func (f *Facade) Handle(ctx context.Context, req *income.CreateRequest) (*income.CreateResponse, error) {
 	serv := &service{
 		ctx: ctx,
 		req: req,
 		f:   f,
 	}
 
-	if err := serv.find(); err != nil {
+	if err := serv.create(); err != nil {
 		return nil, err
 	}
 	return serv.reply(), nil
