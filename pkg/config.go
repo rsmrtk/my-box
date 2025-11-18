@@ -4,7 +4,7 @@ import "github.com/rsmrtk/fd-cfg/config/env"
 
 type Config struct {
 	ENV                           env.ENV
-	SpannerURL                    string
+	PostgresURL                   string
 	StripeKey                     string
 	GoogleMapsKey                 string
 	JWTSecret                     string
