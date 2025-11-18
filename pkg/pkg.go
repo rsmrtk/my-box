@@ -79,7 +79,7 @@ func initLogger(env env.ENV) (*lg.Logger, error) {
 }
 
 func initModels(ctx context.Context, cnfInstance *Config, logInstance *lg.Logger) (*pkg_model.Models, error) {
-	modelsInstance, err := pkg_model.New(ctx, cnfInstance.SpannerURL, logInstance)
+	modelsInstance, err := pkg_model.New(ctx, cnfInstance.PostgresURL, logInstance)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize models: %w", err)
 	}
@@ -119,8 +119,17 @@ func initCfg(ctx context.Context) (*Config, error) {
 		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
 
+	// Get PostgreSQL connection string from environment
+	postgresURL := os.Getenv("POSTGRES_DSN")
+	if postgresURL == "" {
+		postgresURL = "postgres://postgres:password@localhost:5432/mybox?sslmode=disable"
+	}
+
 	c := &Config{
 		ENV:         env,
+		PostgresURL: postgresURL,
+		JWTSecret:   os.Getenv("JWT_SECRET"),
+		JWTDuration: os.Getenv("JWT_DURATION"),
 		TLSCertFile: valueMap.Get(config.TLSCertFile.Name),
 		TLSKeyFile:  valueMap.Get(config.TLSKeyFile.Name),
 	}

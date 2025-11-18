@@ -24,14 +24,9 @@ type service struct {
 }
 
 func (s *service) find() error {
-	rows, err := s.f.pkg.M.FinDash.Income.Get(s.ctx,
-		[]m_income.QueryParam{
-			{
-				Field:    m_income.IncomeID,
-				Operator: "=",
-				Value:    s.req.IncomeID,
-			},
-		},
+	// Use the Find method to get a single income by ID
+	data, err := s.f.pkg.M.FinDash.Income.Find(s.ctx,
+		s.req.IncomeID,
 		[]m_income.Field{
 			m_income.IncomeID,
 			m_income.IncomeName,
@@ -43,16 +38,31 @@ func (s *service) find() error {
 	)
 	if err != nil {
 		return errs.FailedToFindIncome
-	} else if len(rows) == 0 {
-		return errs.FailedToFindIncome
 	}
 
-	s.incomeID = rows[0].IncomeID
-	s.incomeName = rows[0].IncomeName.StringVal
-	s.incomeAmount = rows[0].IncomeAmount.Numeric
-	s.incomeType = string(m_income.EnumType(rows[0].IncomeType.StringVal))
-	s.incomeDate = rows[0].IncomeDate.Time
-	s.createdAt = rows[0].CreatedAt.Time
+	// Extract data from the model
+	s.incomeID = data.IncomeID
+
+	if data.IncomeName != nil {
+		s.incomeName = *data.IncomeName
+	}
+
+	if data.IncomeAmount != nil {
+		// Convert float64 to big.Rat
+		s.incomeAmount = *big.NewRat(int64(*data.IncomeAmount*100), 100)
+	}
+
+	if data.IncomeType != nil {
+		s.incomeType = *data.IncomeType
+	}
+
+	if data.IncomeDate != nil {
+		s.incomeDate = *data.IncomeDate
+	}
+
+	if data.CreatedAt != nil {
+		s.createdAt = *data.CreatedAt
+	}
 
 	return nil
 }

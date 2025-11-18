@@ -5,7 +5,6 @@ import (
 	"math/big"
 	"time"
 
-	"cloud.google.com/go/spanner"
 	"github.com/google/uuid"
 	"github.com/rsmrtk/db-fd-model/m_income"
 	di "github.com/rsmrtk/mybox/internal/rest/domain/income"
@@ -30,23 +29,28 @@ type service struct {
 
 func (s *service) create() error {
 	// Convert amount from request (assuming first amount in array)
-	var incomeAmount big.Rat
+	var incomeAmountFloat float64
 	if len(s.req.IncomeAmount) > 0 && s.req.IncomeAmount[0] != nil {
-		incomeAmount.SetFloat64(s.req.IncomeAmount[0].Amount)
+		incomeAmountFloat = s.req.IncomeAmount[0].Amount
 	}
 
 	// Generate new ID and timestamp
-	incomeID := uuid.NewString()
+	incomeID := uuid.New().String()
 	createdAt := time.Now().UTC()
 
-	// Create income in database
+	// Create income in database using new pgx models
+	// Convert values to pointers for nullable fields
+	incomeName := s.req.IncomeName
+	incomeType := s.req.IncomeType
+	incomeDate := s.req.IncomeDate
+
 	err := s.f.pkg.M.FinDash.Income.Create(s.ctx, &m_income.Data{
 		IncomeID:     incomeID,
-		IncomeName:   spanner.NullString{StringVal: s.req.IncomeName, Valid: true},
-		IncomeAmount: spanner.NullNumeric{Numeric: incomeAmount, Valid: true},
-		IncomeType:   spanner.NullString{StringVal: s.req.IncomeType, Valid: true},
-		IncomeDate:   spanner.NullTime{Time: s.req.IncomeDate, Valid: true},
-		CreatedAt:    spanner.NullTime{Time: createdAt, Valid: true},
+		IncomeName:   &incomeName,
+		IncomeAmount: &incomeAmountFloat,
+		IncomeType:   &incomeType,
+		IncomeDate:   &incomeDate,
+		CreatedAt:    &createdAt,
 	})
 	if err != nil {
 		return errs.FailedToCreateIncome
@@ -55,7 +59,7 @@ func (s *service) create() error {
 	// Store data in service for reply
 	s.incomeID = incomeID
 	s.incomeName = s.req.IncomeName
-	s.incomeAmount = incomeAmount
+	s.incomeAmount = *big.NewRat(int64(incomeAmountFloat*100), 100) // Convert to big.Rat
 	s.incomeType = s.req.IncomeType
 	s.incomeDate = s.req.IncomeDate
 	s.createdAt = createdAt
