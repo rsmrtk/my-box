@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/rsmrtk/db-fd-model/m_expense"
 	"github.com/rsmrtk/mybox/internal/rest/domain/expense"
 )
 
@@ -19,14 +20,15 @@ func (s *service) delete() error {
 		return errs.InvalidExpenseID
 	}
 
-	// TODO: Uncomment when Expense model is available in db-fd-model
-	// // Delete the expense
-	// err = s.f.pkg.M.FinDash.Expense.Delete(s.ctx, expenseID)
-	// if err != nil {
-	// 	return errs.FailedToDeleteExpense
-	// }
+	pk := m_expense.PrimaryKey{
+		ExpenseID: s.req.ExpenseID,
+	}
 
-	// For now, just return success
+	err = s.f.pkg.M.FinDash.Expense.Delete(s.ctx, pk)
+	if err != nil {
+		return errs.FailedToDeleteExpense
+	}
+
 	return nil
 }
 

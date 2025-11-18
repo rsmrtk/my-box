@@ -6,27 +6,16 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	// TODO: Uncomment when m_expense is available in db-fd-model
-	// m_expense "github.com/rsmrtk/db-fd-model/m_expense"
+	"github.com/rsmrtk/db-fd-model/m_expense"
 	"github.com/rsmrtk/mybox/internal/rest/domain/expense"
 	"github.com/rsmrtk/mybox/internal/rest/domain/models"
 )
-
-// TODO: Replace with m_expense.Data when available
-type expenseData struct {
-	ExpenseID     uuid.UUID
-	ExpenseName   *string
-	ExpenseAmount *float64
-	ExpenseType   *string
-	ExpenseDate   *time.Time
-	CreatedAt     *time.Time
-}
 
 type service struct {
 	ctx   context.Context
 	req   *expense.ListRequest
 	f     *Facade
-	items []*expenseData // TODO: Change to []*m_expense.Data when available
+	items []*m_expense.Data
 	total int
 }
 
@@ -39,55 +28,21 @@ func (s *service) list() error {
 		s.req.Offset = 0
 	}
 
-	// TODO: Uncomment when Expense model is available in db-fd-model
-	// Define fields to fetch
-	// fields := []m_expense.Field{
-	// 	m_expense.ExpenseID,
-	// 	m_expense.ExpenseName,
-	// 	m_expense.ExpenseAmount,
-	// 	m_expense.ExpenseType,
-	// 	m_expense.ExpenseDate,
-	// 	m_expense.CreatedAt,
-	// }
-	//
-	// // Fetch all expenses with pagination
-	// var err error
-	// s.items, s.total, err = s.f.pkg.M.FinDash.Expense.List(
-	// 	s.ctx,
-	// 	fields,
-	// 	s.req.Limit,
-	// 	s.req.Offset,
-	// 	s.req.SortBy,
-	// 	s.req.Order,
-	// )
-	// if err != nil {
-	// 	return errs.FailedToListExpenses
-	// }
+	// Note: Current API doesn't support pagination, sorting, and total count directly
+	// This would need to be implemented in the model or handled differently
+	queryParams := []m_expense.QueryParam{}
 
-	// Temporary mock data for testing
-	s.items = make([]*expenseData, 0)
+	// Add any filter parameters if needed
+	// For now, get all records
 
-	// Create some mock expenses
-	for i := 0; i < 5; i++ {
-		mockName := "Test Expense " + string(rune('A'+i))
-		mockAmount := float64((i + 1) * 100)
-		mockType := "Category " + string(rune('A'+i))
-		mockDate := time.Now().AddDate(0, 0, -i)
-		mockCreated := time.Now().AddDate(0, 0, -i)
-
-		s.items = append(s.items, &expenseData{
-			ExpenseID:     uuid.New(),
-			ExpenseName:   &mockName,
-			ExpenseAmount: &mockAmount,
-			ExpenseType:   &mockType,
-			ExpenseDate:   &mockDate,
-			CreatedAt:     &mockCreated,
-		})
+	var err error
+	s.items, err = s.f.pkg.M.FinDash.Expense.List(s.ctx, queryParams)
+	if err != nil {
+		return errs.FailedToListExpenses
 	}
 
+	// Manual pagination since API doesn't support it
 	s.total = len(s.items)
-
-	// Apply pagination to mock data
 	if s.req.Offset < len(s.items) {
 		end := s.req.Offset + s.req.Limit
 		if end > len(s.items) {
@@ -95,7 +50,7 @@ func (s *service) list() error {
 		}
 		s.items = s.items[s.req.Offset:end]
 	} else {
-		s.items = []*expenseData{}
+		s.items = []*m_expense.Data{}
 	}
 
 	return nil
@@ -110,28 +65,43 @@ func (s *service) reply() *expense.ListResponse {
 		var expenseDate, createdAt time.Time
 
 		// Extract nullable fields
+		// Handle interface{} types for ExpenseName and ExpenseType
 		if data.ExpenseName != nil {
-			expenseName = *data.ExpenseName
+			if name, ok := data.ExpenseName.(string); ok {
+				expenseName = name
+			}
 		}
-		if data.ExpenseAmount != nil {
-			expenseAmount = *data.ExpenseAmount
+
+		if data.ExpenseAmount.Valid {
+			expenseAmount = data.ExpenseAmount.Float64
 		}
+
 		if data.ExpenseType != nil {
-			expenseType = *data.ExpenseType
+			if typ, ok := data.ExpenseType.(string); ok {
+				expenseType = typ
+			}
 		}
-		if data.ExpenseDate != nil {
-			expenseDate = *data.ExpenseDate
+
+		if data.ExpenseDate.Valid {
+			expenseDate = data.ExpenseDate.Time
 		}
-		if data.CreatedAt != nil {
-			createdAt = *data.CreatedAt
+
+		if data.CreatedAt.Valid {
+			createdAt = data.CreatedAt.Time
 		}
 
 		// Convert float64 to big.Rat for precise decimal handling
 		expenseAmountRat := *big.NewRat(int64(expenseAmount*100), 100)
 		amountValue, _ := expenseAmountRat.Float64()
 
+		// Handle ExpenseID conversion
+		expenseIDStr := ""
+		if id, ok := data.ExpenseID.(uuid.UUID); ok {
+			expenseIDStr = id.String()
+		}
+
 		item := &expense.ListItem{
-			ExpenseID:   data.ExpenseID.String(),
+			ExpenseID:   expenseIDStr,
 			ExpenseName: expenseName,
 			ExpenseAmount: []*models.Amount{{
 				Amount:         amountValue,

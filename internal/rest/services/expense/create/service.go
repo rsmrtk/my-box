@@ -2,31 +2,21 @@ package create
 
 import (
 	"context"
+	"database/sql"
 	"math/big"
 	"time"
 
 	"github.com/google/uuid"
-	// TODO: Uncomment when m_expense is available in db-fd-model
-	// m_expense "github.com/rsmrtk/db-fd-model/m_expense"
+	"github.com/rsmrtk/db-fd-model/m_expense"
 	"github.com/rsmrtk/mybox/internal/rest/domain/expense"
 	"github.com/rsmrtk/mybox/internal/rest/domain/models"
 )
-
-// TODO: Replace with m_expense.Data when available
-type expenseData struct {
-	ExpenseID     uuid.UUID
-	ExpenseName   *string
-	ExpenseAmount *float64
-	ExpenseType   *string
-	ExpenseDate   *time.Time
-	CreatedAt     *time.Time
-}
 
 type service struct {
 	ctx  context.Context
 	req  *expense.CreateRequest
 	f    *Facade
-	data *expenseData // TODO: Change to *m_expense.Data when available
+	data *m_expense.Data
 }
 
 func (s *service) create() error {
@@ -41,20 +31,23 @@ func (s *service) create() error {
 
 	// Create the expense record
 	createdAt := time.Now()
-	s.data = &expenseData{
+
+	// ExpenseDate is always valid since it's required in the request
+	expenseDateNull := sql.NullTime{Time: s.req.ExpenseDate, Valid: true}
+
+	s.data = &m_expense.Data{
 		ExpenseID:     expenseID,
-		ExpenseName:   &s.req.ExpenseName,
-		ExpenseAmount: &expenseAmount,
-		ExpenseType:   &s.req.ExpenseType,
-		ExpenseDate:   &s.req.ExpenseDate,
-		CreatedAt:     &createdAt,
+		ExpenseName:   s.req.ExpenseName,
+		ExpenseAmount: sql.NullFloat64{Float64: expenseAmount, Valid: true},
+		ExpenseType:   s.req.ExpenseType,
+		ExpenseDate:   expenseDateNull,
+		CreatedAt:     sql.NullTime{Time: createdAt, Valid: true},
 	}
 
-	// TODO: Uncomment when Expense model is available in db-fd-model
-	// err := s.f.pkg.M.FinDash.Expense.Create(s.ctx, s.data)
-	// if err != nil {
-	// 	return errs.FailedToCreateExpense
-	// }
+	err := s.f.pkg.M.FinDash.Expense.Create(s.ctx, s.data)
+	if err != nil {
+		return errs.FailedToCreateExpense
+	}
 
 	return nil
 }
@@ -64,25 +57,39 @@ func (s *service) reply() *expense.CreateResponse {
 	var expenseAmount float64
 	var expenseDate time.Time
 
+	// Handle interface{} types for ExpenseName and ExpenseType
 	if s.data.ExpenseName != nil {
-		expenseName = *s.data.ExpenseName
+		if name, ok := s.data.ExpenseName.(string); ok {
+			expenseName = name
+		}
 	}
-	if s.data.ExpenseAmount != nil {
-		expenseAmount = *s.data.ExpenseAmount
+
+	if s.data.ExpenseAmount.Valid {
+		expenseAmount = s.data.ExpenseAmount.Float64
 	}
+
 	if s.data.ExpenseType != nil {
-		expenseType = *s.data.ExpenseType
+		if typ, ok := s.data.ExpenseType.(string); ok {
+			expenseType = typ
+		}
 	}
-	if s.data.ExpenseDate != nil {
-		expenseDate = *s.data.ExpenseDate
+
+	if s.data.ExpenseDate.Valid {
+		expenseDate = s.data.ExpenseDate.Time
 	}
 
 	// Convert float64 to big.Rat for precise decimal handling
 	expenseAmountRat := *big.NewRat(int64(expenseAmount*100), 100)
 	amountValue, _ := expenseAmountRat.Float64()
 
+	// Handle ExpenseID conversion
+	expenseIDStr := ""
+	if id, ok := s.data.ExpenseID.(uuid.UUID); ok {
+		expenseIDStr = id.String()
+	}
+
 	return &expense.CreateResponse{
-		ExpenseID:   s.data.ExpenseID.String(),
+		ExpenseID:   expenseIDStr,
 		ExpenseName: expenseName,
 		ExpenseAmount: []*models.Amount{{
 			Amount:         amountValue,

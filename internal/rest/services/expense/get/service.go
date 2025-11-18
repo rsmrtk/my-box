@@ -6,64 +6,40 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	// TODO: Uncomment when m_expense is available in db-fd-model
-	// m_expense "github.com/rsmrtk/db-fd-model/m_expense"
+	"github.com/rsmrtk/db-fd-model/m_expense"
 	"github.com/rsmrtk/mybox/internal/rest/domain/expense"
 	"github.com/rsmrtk/mybox/internal/rest/domain/models"
 )
-
-// TODO: Replace with m_expense.Data when available
-type expenseData struct {
-	ExpenseID     uuid.UUID
-	ExpenseName   *string
-	ExpenseAmount *float64
-	ExpenseType   *string
-	ExpenseDate   *time.Time
-	CreatedAt     *time.Time
-}
 
 type service struct {
 	ctx  context.Context
 	req  *expense.GetRequest
 	f    *Facade
-	data *expenseData // TODO: Change to *m_expense.Data when available
+	data *m_expense.Data
 }
 
 func (s *service) find() error {
-	expenseID, err := uuid.Parse(s.req.ExpenseID)
+	_, err := uuid.Parse(s.req.ExpenseID)
 	if err != nil {
 		return errs.InvalidExpenseID
 	}
 
-	// TODO: Uncomment when Expense model is available in db-fd-model
-	// fields := []string{
-	// 	"expense_id",
-	// 	"expense_name",
-	// 	"expense_amount",
-	// 	"expense_type",
-	// 	"expense_date",
-	// 	"created_at",
-	// }
-	//
-	// s.data, err = s.f.pkg.M.FinDash.Expense.Find(s.ctx, expenseID, fields)
-	// if err != nil {
-	// 	return errs.ExpenseNotFound
-	// }
+	pk := m_expense.PrimaryKey{
+		ExpenseID: s.req.ExpenseID,
+	}
 
-	// Temporary mock data for testing
-	mockName := "Test Expense"
-	mockAmount := 100.00
-	mockType := "Test"
-	mockDate := time.Now()
-	mockCreated := time.Now()
+	fields := []m_expense.Field{
+		m_expense.ExpenseID,
+		m_expense.ExpenseName,
+		m_expense.ExpenseAmount,
+		m_expense.ExpenseType,
+		m_expense.ExpenseDate,
+		m_expense.CreatedAt,
+	}
 
-	s.data = &expenseData{
-		ExpenseID:     expenseID,
-		ExpenseName:   &mockName,
-		ExpenseAmount: &mockAmount,
-		ExpenseType:   &mockType,
-		ExpenseDate:   &mockDate,
-		CreatedAt:     &mockCreated,
+	s.data, err = s.f.pkg.M.FinDash.Expense.Find(s.ctx, pk, fields)
+	if err != nil {
+		return errs.ExpenseNotFound
 	}
 
 	return nil
@@ -74,28 +50,43 @@ func (s *service) reply() *expense.GetResponse {
 	var expenseAmount float64
 	var expenseDate, createdAt time.Time
 
+	// Handle interface{} types for ExpenseName and ExpenseType
 	if s.data.ExpenseName != nil {
-		expenseName = *s.data.ExpenseName
+		if name, ok := s.data.ExpenseName.(string); ok {
+			expenseName = name
+		}
 	}
-	if s.data.ExpenseAmount != nil {
-		expenseAmount = *s.data.ExpenseAmount
+
+	if s.data.ExpenseAmount.Valid {
+		expenseAmount = s.data.ExpenseAmount.Float64
 	}
+
 	if s.data.ExpenseType != nil {
-		expenseType = *s.data.ExpenseType
+		if typ, ok := s.data.ExpenseType.(string); ok {
+			expenseType = typ
+		}
 	}
-	if s.data.ExpenseDate != nil {
-		expenseDate = *s.data.ExpenseDate
+
+	if s.data.ExpenseDate.Valid {
+		expenseDate = s.data.ExpenseDate.Time
 	}
-	if s.data.CreatedAt != nil {
-		createdAt = *s.data.CreatedAt
+
+	if s.data.CreatedAt.Valid {
+		createdAt = s.data.CreatedAt.Time
 	}
 
 	// Convert float64 to big.Rat for precise decimal handling
 	expenseAmountRat := *big.NewRat(int64(expenseAmount*100), 100)
 	amountValue, _ := expenseAmountRat.Float64()
 
+	// Handle ExpenseID conversion
+	expenseIDStr := ""
+	if id, ok := s.data.ExpenseID.(uuid.UUID); ok {
+		expenseIDStr = id.String()
+	}
+
 	return &expense.GetResponse{
-		ExpenseID:   s.data.ExpenseID.String(),
+		ExpenseID:   expenseIDStr,
 		ExpenseName: expenseName,
 		ExpenseAmount: []*models.Amount{{
 			Amount:         amountValue,

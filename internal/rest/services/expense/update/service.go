@@ -2,91 +2,74 @@ package update
 
 import (
 	"context"
+	"database/sql"
 	"math/big"
 	"time"
 
 	"github.com/google/uuid"
-	// TODO: Uncomment when m_expense is available in db-fd-model
-	// m_expense "github.com/rsmrtk/db-fd-model/m_expense"
+	"github.com/rsmrtk/db-fd-model/m_expense"
 	"github.com/rsmrtk/mybox/internal/rest/domain/expense"
 	"github.com/rsmrtk/mybox/internal/rest/domain/models"
 )
-
-// TODO: Replace with m_expense.Data when available
-type expenseData struct {
-	ExpenseID     uuid.UUID
-	ExpenseName   *string
-	ExpenseAmount *float64
-	ExpenseType   *string
-	ExpenseDate   *time.Time
-}
 
 type service struct {
 	ctx  context.Context
 	req  *expense.UpdateRequest
 	f    *Facade
-	data *expenseData // TODO: Change to *m_expense.Data when available
+	data *m_expense.Data
 }
 
 func (s *service) update() error {
-	expenseID, err := uuid.Parse(s.req.ExpenseID)
+	_, err := uuid.Parse(s.req.ExpenseID)
 	if err != nil {
 		return errs.InvalidExpenseID
 	}
 
-	// TODO: Uncomment when Expense model is available in db-fd-model
-	// // First, fetch the existing expense
-	// fields := []string{
-	// 	"expense_id",
-	// 	"expense_name",
-	// 	"expense_amount",
-	// 	"expense_type",
-	// 	"expense_date",
-	// }
-	//
-	// s.data, err = s.f.pkg.M.FinDash.Expense.Find(s.ctx, expenseID, fields)
-	// if err != nil {
-	// 	return errs.ExpenseNotFound
-	// }
-
-	// Temporary mock data for testing
-	mockName := "Test Expense"
-	mockAmount := 100.00
-	mockType := "Test"
-	mockDate := time.Now()
-
-	s.data = &expenseData{
-		ExpenseID:     expenseID,
-		ExpenseName:   &mockName,
-		ExpenseAmount: &mockAmount,
-		ExpenseType:   &mockType,
-		ExpenseDate:   &mockDate,
+	pk := m_expense.PrimaryKey{
+		ExpenseID: s.req.ExpenseID,
 	}
 
-	// Update only the provided fields
+	fields := []m_expense.Field{
+		m_expense.ExpenseID,
+		m_expense.ExpenseName,
+		m_expense.ExpenseAmount,
+		m_expense.ExpenseType,
+		m_expense.ExpenseDate,
+	}
+
+	s.data, err = s.f.pkg.M.FinDash.Expense.Find(s.ctx, pk, fields)
+	if err != nil {
+		return errs.ExpenseNotFound
+	}
+
+	// Prepare update fields
+	updateFields := m_expense.UpdateFields{}
+
 	if s.req.ExpenseName != "" {
-		s.data.ExpenseName = &s.req.ExpenseName
+		updateFields[m_expense.ExpenseName] = s.req.ExpenseName
+		s.data.ExpenseName = s.req.ExpenseName
 	}
 
 	if len(s.req.ExpenseAmount) > 0 {
 		amount := s.req.ExpenseAmount[0].Amount
-		s.data.ExpenseAmount = &amount
+		updateFields[m_expense.ExpenseAmount] = amount
+		s.data.ExpenseAmount = sql.NullFloat64{Float64: amount, Valid: true}
 	}
 
 	if s.req.ExpenseType != "" {
-		s.data.ExpenseType = &s.req.ExpenseType
+		updateFields[m_expense.ExpenseType] = s.req.ExpenseType
+		s.data.ExpenseType = s.req.ExpenseType
 	}
 
 	if s.req.ExpenseDate != nil {
-		s.data.ExpenseDate = s.req.ExpenseDate
+		updateFields[m_expense.ExpenseDate] = *s.req.ExpenseDate
+		s.data.ExpenseDate = sql.NullTime{Time: *s.req.ExpenseDate, Valid: true}
 	}
 
-	// TODO: Uncomment when Expense model is available in db-fd-model
-	// // Update the expense
-	// err = s.f.pkg.M.FinDash.Expense.Update(s.ctx, s.data)
-	// if err != nil {
-	// 	return errs.FailedToUpdateExpense
-	// }
+	err = s.f.pkg.M.FinDash.Expense.Update(s.ctx, pk, updateFields)
+	if err != nil {
+		return errs.FailedToUpdateExpense
+	}
 
 	return nil
 }
@@ -96,25 +79,39 @@ func (s *service) reply() *expense.UpdateResponse {
 	var expenseAmount float64
 	var expenseDate time.Time
 
+	// Handle interface{} types for ExpenseName and ExpenseType
 	if s.data.ExpenseName != nil {
-		expenseName = *s.data.ExpenseName
+		if name, ok := s.data.ExpenseName.(string); ok {
+			expenseName = name
+		}
 	}
-	if s.data.ExpenseAmount != nil {
-		expenseAmount = *s.data.ExpenseAmount
+
+	if s.data.ExpenseAmount.Valid {
+		expenseAmount = s.data.ExpenseAmount.Float64
 	}
+
 	if s.data.ExpenseType != nil {
-		expenseType = *s.data.ExpenseType
+		if typ, ok := s.data.ExpenseType.(string); ok {
+			expenseType = typ
+		}
 	}
-	if s.data.ExpenseDate != nil {
-		expenseDate = *s.data.ExpenseDate
+
+	if s.data.ExpenseDate.Valid {
+		expenseDate = s.data.ExpenseDate.Time
 	}
 
 	// Convert float64 to big.Rat for precise decimal handling
 	expenseAmountRat := *big.NewRat(int64(expenseAmount*100), 100)
 	amountValue, _ := expenseAmountRat.Float64()
 
+	// Handle ExpenseID conversion
+	expenseIDStr := ""
+	if id, ok := s.data.ExpenseID.(uuid.UUID); ok {
+		expenseIDStr = id.String()
+	}
+
 	return &expense.UpdateResponse{
-		ExpenseID:   s.data.ExpenseID.String(),
+		ExpenseID:   expenseIDStr,
 		ExpenseName: expenseName,
 		ExpenseAmount: []*models.Amount{{
 			Amount:         amountValue,
