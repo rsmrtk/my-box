@@ -75,40 +75,18 @@ func NewServer(o ServerOptions) (*Server, error) {
 	// Analytics endpoints
 	analytics := engine.Group("/analytics", middlewares.CORSMiddleware())
 	{
-		ac := controllers.NewAnalyticsController(o.Facade)
+		ac := controllers.NewAnalyticsController(o.Services.Analytics)
 
-		// Income Analytics
-		incomeAnalytics := analytics.Group("/income")
-		{
-			incomeAnalytics.GET("", ac.GetIncomeAnalytics)         // General income analytics
-			incomeAnalytics.GET("/top", ac.GetTopIncomes)          // Top incomes
-			incomeAnalytics.GET("/growth", ac.GetIncomeGrowth)     // Income growth analysis
-			incomeAnalytics.GET("/forecast", ac.GetIncomeForecast) // Income forecast
-		}
+		// Dashboard endpoint
+		analytics.GET("/dashboard", ac.GetDashboard) // Dashboard summary with income/expense metrics
 
-		// Expense Analytics
-		expenseAnalytics := analytics.Group("/expense")
-		{
-			expenseAnalytics.GET("", ac.GetExpenseAnalytics)                    // General expense analytics
-			expenseAnalytics.GET("/top", ac.GetTopExpenses)                     // Top expenses
-			expenseAnalytics.GET("/top-categories", ac.GetTopExpenseCategories) // Top expense categories
-			expenseAnalytics.GET("/anomalies", ac.GetExpenseAnomalies)          // Expense anomaly detection
-			expenseAnalytics.GET("/trends", ac.GetExpenseTrends)                // Expense trends
-			expenseAnalytics.GET("/share-of-wallet", ac.GetShareOfWallet)       // Share of wallet analysis
-		}
+		// Expense analytics
+		analytics.GET("/expenses/top", ac.GetTopExpenses)      // Top expense categories
+		analytics.GET("/expenses/trends", ac.GetExpenseTrends) // Expense trends over time
+		analytics.GET("/expenses/anomalies", ac.GetAnomalies)  // Expense anomaly detection
 
-		// Cash Flow Analytics
-		cashFlowAnalytics := analytics.Group("/cashflow")
-		{
-			cashFlowAnalytics.GET("/summary", ac.GetCashFlowSummary)              // Cash flow summary
-			cashFlowAnalytics.GET("/forecast", ac.GetCashFlowForecast)            // Cash flow forecast
-			cashFlowAnalytics.GET("/stability", ac.GetFinancialStability)         // Financial stability
-			cashFlowAnalytics.GET("/emergency-fund", ac.GetEmergencyFundAnalysis) // Emergency fund analysis
-		}
-
-		// Dashboard & Health
-		analytics.GET("/dashboard", ac.GetDashboardSummary)       // Comprehensive dashboard summary
-		analytics.GET("/financial-health", ac.GetFinancialHealth) // Financial health check
+		// Income analytics
+		analytics.GET("/income/growth", ac.GetIncomeGrowth) // Income growth analysis
 	}
 
 	return &Server{addr: ":9595", cert: o.Facade.Config.TLSCertFile, key: o.Facade.Config.TLSKeyFile, server: engine}, nil
