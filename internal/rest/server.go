@@ -55,8 +55,21 @@ func NewServer(o ServerOptions) (*Server, error) {
 	incomes := engine.Group("/income", middlewares.CORSMiddleware())
 	{
 		c := controllers.NewEstimateController(o.Services.Income)
-		incomes.GET("", c.Get)
+		incomes.GET("/list", c.List) // List all incomes
+		incomes.GET("", c.Get)       // Get single income
 		incomes.POST("", c.Create)
+		incomes.PUT("", c.Update)
+		incomes.DELETE("", c.Delete)
+	}
+
+	expenses := engine.Group("/expense", middlewares.CORSMiddleware())
+	{
+		c := controllers.NewExpenseController(o.Services.Expense)
+		expenses.GET("/list", c.List) // List all expenses
+		expenses.GET("", c.Get)       // Get single expense
+		expenses.POST("", c.Create)
+		expenses.PUT("", c.Update)
+		expenses.DELETE("", c.Delete)
 	}
 
 	return &Server{addr: ":9595", cert: o.Facade.Config.TLSCertFile, key: o.Facade.Config.TLSKeyFile, server: engine}, nil

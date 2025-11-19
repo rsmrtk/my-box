@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/rsmrtk/mybox/internal/rest/services/expense"
 	"github.com/rsmrtk/mybox/internal/rest/services/income"
 	"github.com/rsmrtk/mybox/pkg"
 )
@@ -10,11 +11,13 @@ type Options struct {
 }
 
 type Services struct {
-	Income *income.Service
+	Income  *income.Service
+	Expense *expense.Service
 }
 
 func NewService(opts Options) *Services {
 	return &Services{
-		Income: income.NewService(opts.Pkg),
+		Income:  income.NewService(opts.Pkg),
+		Expense: expense.New(opts.Pkg),
 	}
 }
