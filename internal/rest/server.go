@@ -72,6 +72,45 @@ func NewServer(o ServerOptions) (*Server, error) {
 		expenses.DELETE("", c.Delete)
 	}
 
+	// Analytics endpoints
+	analytics := engine.Group("/analytics", middlewares.CORSMiddleware())
+	{
+		ac := controllers.NewAnalyticsController(o.Facade)
+
+		// Income Analytics
+		incomeAnalytics := analytics.Group("/income")
+		{
+			incomeAnalytics.GET("", ac.GetIncomeAnalytics)         // General income analytics
+			incomeAnalytics.GET("/top", ac.GetTopIncomes)          // Top incomes
+			incomeAnalytics.GET("/growth", ac.GetIncomeGrowth)     // Income growth analysis
+			incomeAnalytics.GET("/forecast", ac.GetIncomeForecast) // Income forecast
+		}
+
+		// Expense Analytics
+		expenseAnalytics := analytics.Group("/expense")
+		{
+			expenseAnalytics.GET("", ac.GetExpenseAnalytics)                    // General expense analytics
+			expenseAnalytics.GET("/top", ac.GetTopExpenses)                     // Top expenses
+			expenseAnalytics.GET("/top-categories", ac.GetTopExpenseCategories) // Top expense categories
+			expenseAnalytics.GET("/anomalies", ac.GetExpenseAnomalies)          // Expense anomaly detection
+			expenseAnalytics.GET("/trends", ac.GetExpenseTrends)                // Expense trends
+			expenseAnalytics.GET("/share-of-wallet", ac.GetShareOfWallet)       // Share of wallet analysis
+		}
+
+		// Cash Flow Analytics
+		cashFlowAnalytics := analytics.Group("/cashflow")
+		{
+			cashFlowAnalytics.GET("/summary", ac.GetCashFlowSummary)              // Cash flow summary
+			cashFlowAnalytics.GET("/forecast", ac.GetCashFlowForecast)            // Cash flow forecast
+			cashFlowAnalytics.GET("/stability", ac.GetFinancialStability)         // Financial stability
+			cashFlowAnalytics.GET("/emergency-fund", ac.GetEmergencyFundAnalysis) // Emergency fund analysis
+		}
+
+		// Dashboard & Health
+		analytics.GET("/dashboard", ac.GetDashboardSummary)       // Comprehensive dashboard summary
+		analytics.GET("/financial-health", ac.GetFinancialHealth) // Financial health check
+	}
+
 	return &Server{addr: ":9595", cert: o.Facade.Config.TLSCertFile, key: o.Facade.Config.TLSKeyFile, server: engine}, nil
 }
 

@@ -1,0 +1,123 @@
+{
+  "expense": {
+    "create": {
+      "url": "POST http://localhost:9595/expense",
+      "body": {
+        "expense_name": "Grocery Shopping",
+        "expense_amount": [
+          {
+            "amount": 125.50,
+            "currency_code": "USD",
+            "currency_symbol": "$"
+          }
+        ],
+        "expense_type": "Food",
+        "expense_date": "2025-11-19"
+      }
+    },
+    "get": {
+      "url": "GET http://localhost:9595/expense",
+      "body": {
+        "expense_id": "REPLACE_WITH_ACTUAL_ID"
+      }
+    },
+    "list": {
+      "url": "GET http://localhost:9595/expense/list",
+      "body": {
+        "limit": 10,
+        "offset": 0,
+        "sort_by": "expense_date",
+        "order": "desc"
+      }
+    },
+    "update": {
+      "url": "PUT http://localhost:9595/expense",
+      "body": {
+        "expense_id": "REPLACE_WITH_ACTUAL_ID",
+        "expense_name": "Updated Grocery Shopping",
+        "expense_amount": [
+          {
+            "amount": 150.75,
+            "currency_code": "USD",
+            "currency_symbol": "$"
+          }
+        ],
+        "expense_type": "Food & Groceries",
+        "expense_date": "2025-11-20"
+      }
+    },
+    "delete": {
+      "url": "DELETE http://localhost:9595/expense",
+      "body": {
+        "expense_id": "REPLACE_WITH_ACTUAL_ID"
+      }
+    }
+  },
+  "income": {
+    "create": {
+      "url": "POST http://localhost:9595/income",
+      "body": {
+        "income_name": "Monthly Salary",
+        "income_amount": [
+          {
+            "amount": 5000.00,
+            "currency_code": "USD",
+            "currency_symbol": "$"
+          }
+        ],
+        "income_type": "Salary",
+        "income_date": "2025-11-15"
+      }
+    },
+    "get": {
+      "url": "GET http://localhost:9595/income",
+      "body": {
+        "income_id": "REPLACE_WITH_ACTUAL_ID"
+      }
+    },
+    "list": {
+      "url": "GET http://localhost:9595/income/list",
+      "body": {
+        "limit": 10,
+        "offset": 0,
+        "sort_by": "income_date",
+        "order": "desc"
+      }
+    },
+    "update": {
+      "url": "PUT http://localhost:9595/income",
+      "body": {
+        "income_id": "REPLACE_WITH_ACTUAL_ID",
+        "income_name": "Updated Monthly Salary",
+        "income_amount": [
+          {
+            "amount": 5500.00,
+            "currency_code": "USD",
+            "currency_symbol": "$"
+          }
+        ],
+        "income_type": "Salary Increase",
+        "income_date": "2025-11-16"
+      }
+    },
+    "delete": {
+      "url": "DELETE http://localhost:9595/income",
+      "body": {
+        "income_id": "REPLACE_WITH_ACTUAL_ID"
+      }
+    }
+  },
+  "test_cases": {
+    "valid_dates": [
+      "2025-11-19",
+      "2025-01-01",
+      "2025-12-31",
+      "2024-02-29"
+    ],
+    "invalid_dates_old_format": [
+      "2025-11-19T00:00:00Z",
+      "2025-11-19T14:30:00+02:00",
+      "2025-11-19T23:59:59.999Z"
+    ]
+  }
+}
