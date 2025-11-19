@@ -1,0 +1,289 @@
+{
+  "info": {
+    "name": "Financial Dashboard Analytics API",
+    "description": "Collection for testing all analytics endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "dashboard"]
+            },
+            "description": "Get comprehensive dashboard metrics including income, expenses, cash flow, and top categories"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Top Expenses",
+      "item": [
+        {
+          "name": "Get Top 3 Categories (Default)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/expenses/top",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "expenses", "top"]
+            }
+          }
+        },
+        {
+          "name": "Get Top 5 Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/expenses/top?limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "expenses", "top"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Top 10 Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/expenses/top?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "expenses", "top"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Expense Trends",
+      "item": [
+        {
+          "name": "Get Trends - Last 6 Months (Default)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/expenses/trends",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "expenses", "trends"]
+            }
+          }
+        },
+        {
+          "name": "Get Trends - Last 3 Months",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/expenses/trends?months=3",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "expenses", "trends"],
+              "query": [
+                {
+                  "key": "months",
+                  "value": "3"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Trends - Last 12 Months",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/expenses/trends?months=12",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "expenses", "trends"],
+              "query": [
+                {
+                  "key": "months",
+                  "value": "12"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Income Growth",
+      "item": [
+        {
+          "name": "Get Income Growth Analysis",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/income/growth",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "income", "growth"]
+            },
+            "description": "Analyze income growth between current and previous month"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Anomaly Detection",
+      "item": [
+        {
+          "name": "Detect Anomalies - Default (1.5x)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/expenses/anomalies",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "expenses", "anomalies"]
+            }
+          }
+        },
+        {
+          "name": "Detect Anomalies - Sensitive (1.2x)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/expenses/anomalies?threshold=1.2",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "expenses", "anomalies"],
+              "query": [
+                {
+                  "key": "threshold",
+                  "value": "1.2"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detect Anomalies - Strict (2.0x)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/expenses/anomalies?threshold=2.0",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "expenses", "anomalies"],
+              "query": [
+                {
+                  "key": "threshold",
+                  "value": "2.0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detect Anomalies - Very Strict (3.0x)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/expenses/anomalies?threshold=3.0",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "expenses", "anomalies"],
+              "query": [
+                {
+                  "key": "threshold",
+                  "value": "3.0"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:9595",
+      "type": "string"
+    }
+  ]
+}
