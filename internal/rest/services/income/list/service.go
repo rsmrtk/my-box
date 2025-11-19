@@ -96,8 +96,8 @@ func (s *service) reply() *income.ListResponse {
 				CurrencySymbol: "$",
 			}},
 			IncomeType: incomeType,
-			IncomeDate: incomeDate,
-			CreatedAt:  createdAt,
+			IncomeDate: models.NewDate(incomeDate),
+			CreatedAt:  models.NewDate(createdAt),
 		}
 
 		items = append(items, item)

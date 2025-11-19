@@ -51,7 +51,8 @@ func (s *service) update() error {
 		s.data.IncomeType = &s.req.IncomeType
 	}
 	if s.req.IncomeDate != nil {
-		s.data.IncomeDate = s.req.IncomeDate
+		incomeDate := s.req.IncomeDate.Time
+		s.data.IncomeDate = &incomeDate
 	}
 
 	// TODO: Implement Update when the proper API is known
@@ -95,7 +96,7 @@ func (s *service) reply() *income.UpdateResponse {
 			CurrencySymbol: "$",
 		}},
 		IncomeType: incomeType,
-		IncomeDate: incomeDate,
-		UpdatedAt:  time.Now(),
+		IncomeDate: models.NewDate(incomeDate),
+		UpdatedAt:  models.NewDate(time.Now()),
 	}
 }

@@ -1,8 +1,6 @@
 package expense
 
 import (
-	"time"
-
 	"github.com/rsmrtk/mybox/internal/rest/domain/models"
 )
 
@@ -20,8 +18,8 @@ type ListItem struct {
 	ExpenseName   string           `json:"expense_name"`
 	ExpenseAmount []*models.Amount `json:"expense_amount"`
 	ExpenseType   string           `json:"expense_type"`
-	ExpenseDate   time.Time        `json:"expense_date"`
-	CreatedAt     time.Time        `json:"created_at"`
+	ExpenseDate   models.Date      `json:"expense_date"`
+	CreatedAt     models.Date      `json:"created_at"`
 }
 
 // ListResponse represents the response structure for listing expenses

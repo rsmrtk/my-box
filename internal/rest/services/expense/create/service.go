@@ -33,7 +33,7 @@ func (s *service) create() error {
 	createdAt := time.Now()
 
 	// ExpenseDate is always valid since it's required in the request
-	expenseDateNull := sql.NullTime{Time: s.req.ExpenseDate, Valid: true}
+	expenseDateNull := sql.NullTime{Time: s.req.ExpenseDate.Time, Valid: true}
 
 	s.data = &m_expense.Data{
 		ExpenseID:     expenseID,
@@ -97,7 +97,7 @@ func (s *service) reply() *expense.CreateResponse {
 			CurrencySymbol: "$",
 		}},
 		ExpenseType: expenseType,
-		ExpenseDate: expenseDate,
-		CreatedAt:   time.Now(),
+		ExpenseDate: models.NewDate(expenseDate),
+		CreatedAt:   models.NewDate(time.Now()),
 	}
 }

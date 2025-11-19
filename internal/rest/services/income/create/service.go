@@ -11,9 +11,6 @@ import (
 	"github.com/rsmrtk/mybox/internal/rest/domain/models"
 )
 
-//create
-//reply
-
 type service struct {
 	ctx context.Context
 	req *di.CreateRequest
@@ -23,8 +20,8 @@ type service struct {
 	incomeName   string
 	incomeAmount big.Rat
 	incomeType   string
-	incomeDate   time.Time
-	createdAt    time.Time
+	incomeDate   models.Date
+	createdAt    models.Date
 }
 
 func (s *service) create() error {
@@ -42,7 +39,7 @@ func (s *service) create() error {
 	// Convert values to pointers for nullable fields
 	incomeName := s.req.IncomeName
 	incomeType := s.req.IncomeType
-	incomeDate := s.req.IncomeDate
+	incomeDate := s.req.IncomeDate.Time
 
 	err := s.f.pkg.M.FinDash.Income.Create(s.ctx, &m_income.Data{
 		IncomeID:     incomeID,
@@ -62,7 +59,7 @@ func (s *service) create() error {
 	s.incomeAmount = *big.NewRat(int64(incomeAmountFloat*100), 100) // Convert to big.Rat
 	s.incomeType = s.req.IncomeType
 	s.incomeDate = s.req.IncomeDate
-	s.createdAt = createdAt
+	s.createdAt = models.NewDate(createdAt)
 
 	return nil
 }

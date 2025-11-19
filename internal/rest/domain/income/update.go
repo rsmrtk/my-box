@@ -1,8 +1,6 @@
 package income
 
 import (
-	"time"
-
 	"github.com/rsmrtk/mybox/internal/rest/domain/models"
 )
 
@@ -12,7 +10,7 @@ type UpdateRequest struct {
 	IncomeName   string           `json:"income_name,omitempty"`
 	IncomeAmount []*models.Amount `json:"income_amount,omitempty"`
 	IncomeType   string           `json:"income_type,omitempty"`
-	IncomeDate   *time.Time       `json:"income_date,omitempty"`
+	IncomeDate   *models.Date     `json:"income_date,omitempty"`
 }
 
 // UpdateResponse represents the response structure for updating an income
@@ -21,6 +19,6 @@ type UpdateResponse struct {
 	IncomeName   string           `json:"income_name"`
 	IncomeAmount []*models.Amount `json:"income_amount"`
 	IncomeType   string           `json:"income_type"`
-	IncomeDate   time.Time        `json:"income_date"`
-	UpdatedAt    time.Time        `json:"updated_at"`
+	IncomeDate   models.Date      `json:"income_date"`
+	UpdatedAt    models.Date      `json:"updated_at"`
 }

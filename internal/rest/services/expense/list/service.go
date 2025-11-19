@@ -109,8 +109,8 @@ func (s *service) reply() *expense.ListResponse {
 				CurrencySymbol: "$",
 			}},
 			ExpenseType: expenseType,
-			ExpenseDate: expenseDate,
-			CreatedAt:   createdAt,
+			ExpenseDate: models.NewDate(expenseDate),
+			CreatedAt:   models.NewDate(createdAt),
 		}
 
 		items = append(items, item)

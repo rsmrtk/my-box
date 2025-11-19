@@ -62,8 +62,8 @@ func (s *service) update() error {
 	}
 
 	if s.req.ExpenseDate != nil {
-		updateFields[m_expense.ExpenseDate] = *s.req.ExpenseDate
-		s.data.ExpenseDate = sql.NullTime{Time: *s.req.ExpenseDate, Valid: true}
+		updateFields[m_expense.ExpenseDate] = s.req.ExpenseDate.Time
+		s.data.ExpenseDate = sql.NullTime{Time: s.req.ExpenseDate.Time, Valid: true}
 	}
 
 	err = s.f.pkg.M.FinDash.Expense.Update(s.ctx, pk, updateFields)
@@ -119,7 +119,7 @@ func (s *service) reply() *expense.UpdateResponse {
 			CurrencySymbol: "$",
 		}},
 		ExpenseType: expenseType,
-		ExpenseDate: expenseDate,
-		UpdatedAt:   time.Now(),
+		ExpenseDate: models.NewDate(expenseDate),
+		UpdatedAt:   models.NewDate(time.Now()),
 	}
 }

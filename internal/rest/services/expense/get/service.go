@@ -94,7 +94,7 @@ func (s *service) reply() *expense.GetResponse {
 			CurrencySymbol: "$",
 		}},
 		ExpenseType: expenseType,
-		ExpenseDate: expenseDate,
-		CreatedAt:   createdAt,
+		ExpenseDate: models.NewDate(expenseDate),
+		CreatedAt:   models.NewDate(createdAt),
 	}
 }
