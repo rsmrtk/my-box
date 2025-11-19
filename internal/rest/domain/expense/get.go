@@ -1,0 +1,20 @@
+package expense
+
+import (
+	"github.com/rsmrtk/mybox/internal/rest/domain/models"
+)
+
+// GetRequest represents the request structure for fetching an expense
+type GetRequest struct {
+	ExpenseID string `json:"expense_id" binding:"required"`
+}
+
+// GetResponse represents the response structure for fetching an expense
+type GetResponse struct {
+	ExpenseID     string           `json:"expense_id"`
+	ExpenseName   string           `json:"expense_name"`
+	ExpenseAmount []*models.Amount `json:"expense_amount"`
+	ExpenseType   string           `json:"expense_type"`
+	ExpenseDate   models.Date      `json:"expense_date"`
+	CreatedAt     models.Date      `json:"created_at"`
+}

@@ -3,11 +3,10 @@ package get
 import (
 	"context"
 	"math/big"
-	"time"
 
 	"github.com/rsmrtk/db-fd-model/m_income"
 	di "github.com/rsmrtk/mybox/internal/rest/domain/income"
-	amount "github.com/rsmrtk/mybox/internal/rest/domain/models"
+	"github.com/rsmrtk/mybox/internal/rest/domain/models"
 )
 
 type service struct {
@@ -19,8 +18,8 @@ type service struct {
 	incomeName   string
 	incomeAmount big.Rat
 	incomeType   string
-	incomeDate   time.Time
-	createdAt    time.Time
+	incomeDate   models.Date
+	createdAt    models.Date
 }
 
 func (s *service) find() error {
@@ -57,11 +56,11 @@ func (s *service) find() error {
 	}
 
 	if data.IncomeDate != nil {
-		s.incomeDate = *data.IncomeDate
+		s.incomeDate = models.NewDate(*data.IncomeDate)
 	}
 
 	if data.CreatedAt != nil {
-		s.createdAt = *data.CreatedAt
+		s.createdAt = models.NewDate(*data.CreatedAt)
 	}
 
 	return nil
@@ -69,17 +68,16 @@ func (s *service) find() error {
 
 func (s *service) reply() *di.GetResponse {
 	amountValue, _ := s.incomeAmount.Float64()
-	amountObj := &amount.Amount{
-		Amount:          amountValue,
-		AmountFormatted: s.incomeAmount.String(),
-		CurrencyCode:    "USD",
-		CurrencySymbol:  "$",
+	amountObj := &models.Amount{
+		Amount:         amountValue,
+		CurrencyCode:   "USD",
+		CurrencySymbol: "$",
 	}
 
 	return &di.GetResponse{
 		IncomeID:     s.incomeID,
 		IncomeName:   s.incomeName,
-		IncomeAmount: []*amount.Amount{amountObj},
+		IncomeAmount: []*models.Amount{amountObj},
 		IncomeType:   s.incomeType,
 		IncomeDate:   s.incomeDate,
 		CreatedAt:    s.createdAt,

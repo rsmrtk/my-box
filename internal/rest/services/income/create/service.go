@@ -8,11 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/rsmrtk/db-fd-model/m_income"
 	di "github.com/rsmrtk/mybox/internal/rest/domain/income"
-	amount "github.com/rsmrtk/mybox/internal/rest/domain/models"
+	"github.com/rsmrtk/mybox/internal/rest/domain/models"
 )
-
-//create
-//reply
 
 type service struct {
 	ctx context.Context
@@ -23,8 +20,8 @@ type service struct {
 	incomeName   string
 	incomeAmount big.Rat
 	incomeType   string
-	incomeDate   time.Time
-	createdAt    time.Time
+	incomeDate   models.Date
+	createdAt    models.Date
 }
 
 func (s *service) create() error {
@@ -42,7 +39,7 @@ func (s *service) create() error {
 	// Convert values to pointers for nullable fields
 	incomeName := s.req.IncomeName
 	incomeType := s.req.IncomeType
-	incomeDate := s.req.IncomeDate
+	incomeDate := s.req.IncomeDate.Time
 
 	err := s.f.pkg.M.FinDash.Income.Create(s.ctx, &m_income.Data{
 		IncomeID:     incomeID,
@@ -62,7 +59,7 @@ func (s *service) create() error {
 	s.incomeAmount = *big.NewRat(int64(incomeAmountFloat*100), 100) // Convert to big.Rat
 	s.incomeType = s.req.IncomeType
 	s.incomeDate = s.req.IncomeDate
-	s.createdAt = createdAt
+	s.createdAt = models.NewDate(createdAt)
 
 	return nil
 }
@@ -72,17 +69,16 @@ func (s *service) reply() *di.CreateResponse {
 	amountValue, _ := s.incomeAmount.Float64()
 
 	// Create amount structure
-	amountObj := &amount.Amount{
-		Amount:          amountValue,
-		AmountFormatted: s.incomeAmount.String(),
-		CurrencyCode:    "USD", // Default, adjust as needed
-		CurrencySymbol:  "$",   // Default, adjust as needed
+	amountObj := &models.Amount{
+		Amount:         amountValue,
+		CurrencyCode:   "USD", // Default, adjust as needed
+		CurrencySymbol: "$",   // Default, adjust as needed
 	}
 
 	return &di.CreateResponse{
 		IncomeID:     s.incomeID,
 		IncomeName:   s.incomeName,
-		IncomeAmount: []*amount.Amount{amountObj},
+		IncomeAmount: []*models.Amount{amountObj},
 		IncomeType:   s.incomeType,
 		IncomeDate:   s.incomeDate,
 		CreatedAt:    s.createdAt,
