@@ -87,21 +87,8 @@ type ShareOfWalletData struct {
 	CategoryRank         int     `json:"category_rank"`
 }
 
-// TopExpensesRequest represents the request for top expenses
-type TopExpensesRequest struct {
-	Limit     int        `json:"limit,omitempty"`
-	StartDate *time.Time `json:"start_date,omitempty"`
-	EndDate   *time.Time `json:"end_date,omitempty"`
-}
-
-// TopExpensesResponse represents the response for top expenses
-type TopExpensesResponse struct {
-	Success bool             `json:"success"`
-	Data    []TopExpenseItem `json:"data,omitempty"`
-	Error   string           `json:"error,omitempty"`
-}
-
 // TopExpenseItem represents a single top expense entry
+// Note: TopExpensesRequest and TopExpensesResponse are defined in models.go
 type TopExpenseItem struct {
 	ExpenseID     uuid.UUID `json:"expense_id"`
 	ExpenseName   string    `json:"expense_name"`
