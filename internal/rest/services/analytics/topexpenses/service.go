@@ -38,7 +38,7 @@ func (s *service) fetchTopExpenses() error {
 			expense_type,
 			SUM(expense_amount) as total,
 			COUNT(*) as count
-		FROM expense
+		FROM expenses
 		WHERE expense_type IS NOT NULL
 		GROUP BY expense_type
 		ORDER BY total DESC
@@ -63,11 +63,18 @@ func (s *service) fetchTopExpenses() error {
 			return errs.FailedToScanData
 		}
 
+		// Get currency from request or use default
+		currency := s.req.Currency
+		if currency == "" {
+			currency = "USD"
+		}
+		currencySymbol := da.GetCurrencySymbol(currency)
+
 		// Create Amount object
 		cat.Total = []*models.Amount{{
 			Amount:         total,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}}
 
 		categories = append(categories, cat)

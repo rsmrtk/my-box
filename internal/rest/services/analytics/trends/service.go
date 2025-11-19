@@ -40,7 +40,7 @@ func (s *service) fetchTrendData() error {
 			DATE_TRUNC('month', expense_date)::DATE as month,
 			SUM(expense_amount) as total,
 			COUNT(*) as transactions
-		FROM expense
+		FROM expenses
 		WHERE expense_date >= CURRENT_DATE - INTERVAL '%d months'
 		GROUP BY month
 		ORDER BY month ASC
@@ -64,11 +64,18 @@ func (s *service) fetchTrendData() error {
 			return errs.FailedToScanData
 		}
 
+		// Get currency from request or use default
+		currency := s.req.Currency
+		if currency == "" {
+			currency = "USD"
+		}
+		currencySymbol := da.GetCurrencySymbol(currency)
+
 		trend.Month = models.NewDate(monthDate)
 		trend.Total = []*models.Amount{{
 			Amount:         total,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}}
 
 		trends = append(trends, trend)
@@ -79,6 +86,13 @@ func (s *service) fetchTrendData() error {
 }
 
 func (s *service) calculateTrendChanges() {
+	// Get currency from request or use default
+	currency := s.req.Currency
+	if currency == "" {
+		currency = "USD"
+	}
+	currencySymbol := da.GetCurrencySymbol(currency)
+
 	// Calculate month-over-month changes
 	for i := 1; i < len(s.trends); i++ {
 		currentTotal := s.trends[i].Total[0].Amount
@@ -88,8 +102,8 @@ func (s *service) calculateTrendChanges() {
 		change := currentTotal - previousTotal
 		s.trends[i].Change = []*models.Amount{{
 			Amount:         change,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}}
 
 		// Calculate percentage change

@@ -58,7 +58,7 @@ func (s *service) calculateIncomeMetrics() error {
 	// Total income
 	err := s.f.pkg.M.FinDash.DB.QueryRow(s.ctx, `
 		SELECT COALESCE(SUM(income_amount), 0)
-		FROM income
+		FROM incomes
 	`).Scan(&s.totalIncome)
 	if err != nil {
 		return errs.FailedToCalculateIncome
@@ -67,7 +67,7 @@ func (s *service) calculateIncomeMetrics() error {
 	// Monthly income (current month)
 	err = s.f.pkg.M.FinDash.DB.QueryRow(s.ctx, `
 		SELECT COALESCE(SUM(income_amount), 0)
-		FROM income
+		FROM incomes
 		WHERE DATE_TRUNC('month', income_date) = DATE_TRUNC('month', CURRENT_DATE)
 	`).Scan(&s.monthlyIncome)
 	if err != nil {
@@ -79,7 +79,7 @@ func (s *service) calculateIncomeMetrics() error {
 		SELECT COALESCE(AVG(daily_total), 0)
 		FROM (
 			SELECT DATE(income_date) as day, SUM(income_amount) as daily_total
-			FROM income
+			FROM incomes
 			WHERE income_date >= CURRENT_DATE - INTERVAL '30 days'
 			GROUP BY DATE(income_date)
 		) daily_income
@@ -95,7 +95,7 @@ func (s *service) calculateExpenseMetrics() error {
 	// Total expense
 	err := s.f.pkg.M.FinDash.DB.QueryRow(s.ctx, `
 		SELECT COALESCE(SUM(expense_amount), 0)
-		FROM expense
+		FROM expenses
 	`).Scan(&s.totalExpense)
 	if err != nil {
 		return errs.FailedToCalculateExpense
@@ -104,7 +104,7 @@ func (s *service) calculateExpenseMetrics() error {
 	// Monthly expense (current month)
 	err = s.f.pkg.M.FinDash.DB.QueryRow(s.ctx, `
 		SELECT COALESCE(SUM(expense_amount), 0)
-		FROM expense
+		FROM expenses
 		WHERE DATE_TRUNC('month', expense_date) = DATE_TRUNC('month', CURRENT_DATE)
 	`).Scan(&s.monthlyExpense)
 	if err != nil {
@@ -116,7 +116,7 @@ func (s *service) calculateExpenseMetrics() error {
 		SELECT COALESCE(AVG(daily_total), 0)
 		FROM (
 			SELECT DATE(expense_date) as day, SUM(expense_amount) as daily_total
-			FROM expense
+			FROM expenses
 			WHERE expense_date >= CURRENT_DATE - INTERVAL '30 days'
 			GROUP BY DATE(expense_date)
 		) daily_expense
@@ -163,7 +163,7 @@ func (s *service) getTopCategories() error {
 			expense_type,
 			SUM(expense_amount) as total,
 			COUNT(*) as count
-		FROM expense
+		FROM expenses
 		GROUP BY expense_type
 		ORDER BY total DESC
 		LIMIT 3
@@ -187,11 +187,18 @@ func (s *service) getTopCategories() error {
 			return errs.FailedToGetCategories
 		}
 
+		// Get currency from request or use default
+		currency := s.req.Currency
+		if currency == "" {
+			currency = "USD"
+		}
+		currencySymbol := da.GetCurrencySymbol(currency)
+
 		// Create Amount object
 		cat.Total = []*models.Amount{{
 			Amount:         total,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}}
 
 		totalAllCategories += total
@@ -210,46 +217,53 @@ func (s *service) getTopCategories() error {
 }
 
 func (s *service) reply() *da.DashboardResponse {
+	// Get currency from request or use default
+	currency := s.req.Currency
+	if currency == "" {
+		currency = "USD"
+	}
+	currencySymbol := da.GetCurrencySymbol(currency)
+
 	return &da.DashboardResponse{
 		// Income
 		TotalIncome: []*models.Amount{{
 			Amount:         s.totalIncome,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}},
 		MonthlyIncome: []*models.Amount{{
 			Amount:         s.monthlyIncome,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}},
 		DailyAvgIncome: []*models.Amount{{
 			Amount:         s.dailyAvgIncome,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}},
 
 		// Expense
 		TotalExpense: []*models.Amount{{
 			Amount:         s.totalExpense,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}},
 		MonthlyExpense: []*models.Amount{{
 			Amount:         s.monthlyExpense,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}},
 		DailyAvgExpense: []*models.Amount{{
 			Amount:         s.dailyAvgExpense,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}},
 
 		// Cash Flow
 		NetCashFlow: []*models.Amount{{
 			Amount:         s.netCashFlow,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}},
 		SavingsRate:     s.savingsRate,
 		StabilityRatio:  s.stabilityRatio,

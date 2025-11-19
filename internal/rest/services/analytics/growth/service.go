@@ -34,7 +34,7 @@ func (s *service) fetchIncomeData() error {
 	// Current month income
 	err := s.f.pkg.M.FinDash.DB.QueryRow(s.ctx, `
 		SELECT COALESCE(SUM(income_amount), 0)
-		FROM income
+		FROM incomes
 		WHERE DATE_TRUNC('month', income_date) = DATE_TRUNC('month', CURRENT_DATE)
 	`).Scan(&s.currentMonth)
 	if err != nil {
@@ -44,7 +44,7 @@ func (s *service) fetchIncomeData() error {
 	// Previous month income
 	err = s.f.pkg.M.FinDash.DB.QueryRow(s.ctx, `
 		SELECT COALESCE(SUM(income_amount), 0)
-		FROM income
+		FROM incomes
 		WHERE DATE_TRUNC('month', income_date) = DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')
 	`).Scan(&s.previousMonth)
 	if err != nil {
@@ -71,21 +71,28 @@ func (s *service) calculateGrowthMetrics() {
 }
 
 func (s *service) reply() *da.GrowthResponse {
+	// Get currency from request or use default
+	currency := s.req.Currency
+	if currency == "" {
+		currency = "USD"
+	}
+	currencySymbol := da.GetCurrencySymbol(currency)
+
 	return &da.GrowthResponse{
 		CurrentMonth: []*models.Amount{{
 			Amount:         s.currentMonth,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}},
 		PreviousMonth: []*models.Amount{{
 			Amount:         s.previousMonth,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}},
 		GrowthAmount: []*models.Amount{{
 			Amount:         s.growthAmount,
-			CurrencyCode:   "USD",
-			CurrencySymbol: "$",
+			CurrencyCode:   currency,
+			CurrencySymbol: currencySymbol,
 		}},
 		GrowthPercentage: s.growthPercentage,
 	}

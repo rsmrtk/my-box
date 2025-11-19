@@ -46,7 +46,7 @@ func (s *service) detect() error {
 func (s *service) fetchCategoryAverages() error {
 	query := `
 		SELECT expense_type, AVG(expense_amount)
-		FROM expense
+		FROM expenses
 		WHERE expense_date >= CURRENT_DATE - INTERVAL '3 months'
 		  AND expense_type IS NOT NULL
 		GROUP BY expense_type
@@ -81,7 +81,7 @@ func (s *service) fetchRecentExpenses() error {
 			expense_amount,
 			expense_type,
 			expense_date
-		FROM expense
+		FROM expenses
 		WHERE expense_date >= CURRENT_DATE - INTERVAL '1 month'
 		  AND expense_type IS NOT NULL
 		ORDER BY expense_amount DESC
@@ -122,6 +122,13 @@ func (s *service) detectAnomalies() {
 
 			// Check if it's an anomaly based on threshold
 			if deviationFactor > threshold {
+				// Get currency from request or use default
+				currency := s.req.Currency
+				if currency == "" {
+					currency = "USD"
+				}
+				currencySymbol := da.GetCurrencySymbol(currency)
+
 				item := da.AnomalyItem{
 					ID:              exp.ID,
 					Name:            exp.Name,
@@ -130,13 +137,13 @@ func (s *service) detectAnomalies() {
 					DeviationFactor: deviationFactor,
 					Amount: []*models.Amount{{
 						Amount:         exp.Amount,
-						CurrencyCode:   "USD",
-						CurrencySymbol: "$",
+						CurrencyCode:   currency,
+						CurrencySymbol: currencySymbol,
 					}},
 					CategoryAverage: []*models.Amount{{
 						Amount:         avg,
-						CurrencyCode:   "USD",
-						CurrencySymbol: "$",
+						CurrencyCode:   currency,
+						CurrencySymbol: currencySymbol,
 					}},
 				}
 

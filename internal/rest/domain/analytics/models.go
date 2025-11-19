@@ -9,7 +9,7 @@ import (
 // ============================================================================
 
 type DashboardRequest struct {
-	// No parameters needed for dashboard
+	Currency string `json:"currency"` // Currency code (USD, EUR, UAH, etc.)
 }
 
 type DashboardResponse struct {
@@ -38,7 +38,8 @@ type DashboardResponse struct {
 // ============================================================================
 
 type TopExpensesRequest struct {
-	Limit int `json:"limit"`
+	Limit    int    `json:"limit"`
+	Currency string `json:"currency"` // Currency code (USD, EUR, UAH, etc.)
 }
 
 type TopExpensesResponse struct {
@@ -57,7 +58,7 @@ type CategorySummary struct {
 // ============================================================================
 
 type GrowthRequest struct {
-	// No parameters needed, using current and previous month
+	Currency string `json:"currency"` // Currency code (USD, EUR, UAH, etc.)
 }
 
 type GrowthResponse struct {
@@ -72,7 +73,8 @@ type GrowthResponse struct {
 // ============================================================================
 
 type TrendsRequest struct {
-	Months int `json:"months"`
+	Months   int    `json:"months"`
+	Currency string `json:"currency"` // Currency code (USD, EUR, UAH, etc.)
 }
 
 type TrendsResponse struct {
@@ -93,6 +95,7 @@ type MonthlyTrend struct {
 
 type AnomaliesRequest struct {
 	Threshold float64 `json:"threshold"`
+	Currency  string  `json:"currency"` // Currency code (USD, EUR, UAH, etc.)
 }
 
 type AnomaliesResponse struct {
